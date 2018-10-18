@@ -259,8 +259,17 @@ lazy val `doc-examples` = project
 def alpakkaProject(projectId: String, moduleName: String, additionalSettings: sbt.Def.SettingsDefinition*): Project =
   Project(id = projectId, base = file(projectId))
     .enablePlugins(AutomateHeaderPlugin)
+    .disablePlugins(BintrayPlugin)
     .settings(
       name := s"akka-stream-alpakka-$projectId",
-      AutomaticModuleName.settings(s"akka.stream.alpakka.$moduleName")
+      AutomaticModuleName.settings(s"akka.stream.alpakka.$moduleName"),
+      publishMavenStyle := true,
+        publishTo := {
+          val nexus = "http://nexus.hal9000.adstax.io/"
+          if (isSnapshot.value)
+            Some("snapshots" at nexus + "content/repositories/snapshots")
+          else
+            Some("releases"  at nexus + "content/repositories/releases")
+      }
     )
     .settings(additionalSettings: _*)
